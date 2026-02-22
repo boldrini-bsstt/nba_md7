@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Playoffs 2024-25 | Modelo MD7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:    #C9082A;
+    --blue:   #17408B;
+    --white:  #1A1A2A;
+    --gold:   #A07208;
+    --dark:   #F4F1EB;
+    --dark2:  #EDE9E0;
+    --dark3:  #FFFFFF;
+    --dark4:  #F0EDE4;
+    --muted:  #8A8A9A;
+    --muted2: #5A5A6A;
+    --green:  #0A7A55;
+    --teal:   #0676A0;
+    --f-disp: 'Bebas Neue', sans-serif;
+    --f-body: 'DM Sans', sans-serif;
+    --f-mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--white);
+    font-family: var(--f-body);
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  /* grain */
+  body::before {
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;opacity:.4;
+  }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content:'';position:absolute;
+    top:-300px;right:-300px;
+    width:900px;height:900px;
+    background:radial-gradient(circle,rgba(201,8,42,.14) 0%,transparent 65%);
+    pointer-events:none;
+  }
+  .hero::after {
+    content:'';position:absolute;
+    bottom:-200px;left:-200px;
+    width:700px;height:700px;
+    background:radial-gradient(circle,rgba(23,64,139,.12) 0%,transparent 65%);
+    pointer-events:none;
+  }
+
+  .eyebrow {
+    font-family:var(--f-mono);font-size:10px;
+    letter-spacing:.22em;color:var(--gold);
+    text-transform:uppercase;margin-bottom:22px;
+    opacity:0;animation:fu .6s .1s forwards;
+  }
+
+  .hero h1 {
+    font-family:var(--f-disp);
+    font-size:clamp(64px,10vw,128px);
+    line-height:.9;letter-spacing:.01em;
+    margin-bottom:28px;
+    opacity:0;animation:fu .7s .25s forwards;
+  }
+  .hero h1 em { color:var(--red);font-style:normal; }
+  .hero h1 sup {
+    font-family:var(--f-mono);font-size:.22em;
+    color:var(--gold);vertical-align:super;
+    letter-spacing:.05em;
+  }
+
+  .hero-lead {
+    max-width:560px;font-size:16px;font-weight:300;
+    color:var(--muted2);line-height:1.75;margin-bottom:56px;
+    opacity:0;animation:fu .7s .4s forwards;
+  }
+
+  .kpis {
+    display:flex;gap:48px;flex-wrap:wrap;
+    opacity:0;animation:fu .7s .55s forwards;
+    margin-bottom:64px;
+  }
+  .kpi-n {
+    font-family:var(--f-disp);font-size:58px;
+    line-height:1;color:var(--gold);
+  }
+  .kpi-l {
+    font-family:var(--f-mono);font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted2);margin-top:4px;
+  }
+
+  /* scoreboard */
+  .scoreboard {
+    display:flex;align-items:center;
+    background:var(--dark3);
+    border:1px solid rgba(0,0,0,.09);
+    border-radius:16px;padding:32px 0;
+    opacity:0;animation:fu .7s .7s forwards;
+  }
+  .sb-col { flex:1;text-align:center;padding:0 40px; }
+  .sb-col+.sb-col { border-left:1px solid rgba(255,255,255,.07); }
+  .sb-tag {
+    font-family:var(--f-mono);font-size:9px;
+    letter-spacing:.2em;color:var(--muted);
+    text-transform:uppercase;margin-bottom:10px;
+  }
+  .sb-score {
+    font-family:var(--f-disp);font-size:80px;line-height:1;
+  }
+  .sb-score.gold { color:var(--gold); }
+  .sb-score.dim  { color:#2A3245; }
+  .sb-note { font-size:12px;color:var(--muted2);margin-top:6px; }
+  .sb-vs {
+    font-family:var(--f-disp);font-size:24px;
+    color:#2A3245;flex-shrink:0;padding:0 16px;
+  }
+
+  /* ── SECTIONS ── */
+  section { padding:88px 0; }
+  hr.div {
+    border:none;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(0,0,0,.1),transparent);
+  }
+
+  .sec-eye {
+    font-family:var(--f-mono);font-size:9px;
+    letter-spacing:.25em;color:var(--red);
+    text-transform:uppercase;margin-bottom:14px;
+  }
+  .sec-title {
+    font-family:var(--f-disp);
+    font-size:clamp(40px,6vw,64px);
+    line-height:.95;margin-bottom:52px;
+  }
+
+  /* ── CONFERENCE BADGE ── */
+  .conf-badge {
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--f-mono);font-size:9px;
+    letter-spacing:.2em;text-transform:uppercase;
+    padding:5px 14px;border-radius:100px;margin-bottom:18px;
+  }
+  .conf-badge.east { background:rgba(23,64,139,.25);color:#7A9FD4;border:1px solid rgba(23,64,139,.4); }
+  .conf-badge.west { background:rgba(201,8,42,.18);color:#E07A8F;border:1px solid rgba(201,8,42,.35); }
+
+  /* ── MATCHUP CARDS ── */
+  .matchup-group { margin-bottom:48px; }
+
+  .mc {
+    background:var(--dark3);
+    border:1px solid #E0DDD6;
+    border-radius:12px;padding:20px 26px;
+    margin-bottom:8px;
+    display:grid;
+    grid-template-columns: 3px 1fr auto auto auto auto;
+    align-items:center;gap:0 20px;
+    position:relative;overflow:hidden;
+    transition:border-color .2s;
+  }
+  .mc:hover { border-color:rgba(255,255,255,.12); }
+
+  .mc-bar { border-radius:3px;align-self:stretch;width:3px; }
+  .mc-bar.ok     { background:var(--green); }
+  .mc-bar.upset  { background:var(--gold); }
+
+  .mc-teams {}
+  .mc-winner { font-weight:600;font-size:15px; }
+  .mc-loser  { font-size:12px;color:var(--muted);margin-top:1px; }
+
+  .upset-label {
+    position:absolute;top:8px;right:14px;
+    font-family:var(--f-mono);font-size:8px;
+    letter-spacing:.15em;color:var(--gold);
+    text-transform:uppercase;
+  }
+
+  .pill {
+    font-family:var(--f-mono);font-size:9px;
+    letter-spacing:.08em;padding:4px 11px;
+    border-radius:100px;white-space:nowrap;
+  }
+  .p-exp  { background:rgba(201,8,42,.18);color:#F87171;border:1px solid rgba(201,8,42,.3); }
+  .p-mod  { background:rgba(245,158,11,.15);color:#FCD34D;border:1px solid rgba(245,158,11,.3); }
+  .p-leve { background:rgba(6,182,212,.12);color:#67E8F9;border:1px solid rgba(6,182,212,.25); }
+  .p-toss { background:rgba(90,100,120,.2);color:#8A95A8;border:1px solid rgba(90,100,120,.3); }
+
+  .mc-pct {
+    font-family:var(--f-disp);font-size:30px;
+    text-align:right;white-space:nowrap;
+  }
+  .mc-pct.hi { color:var(--red); }
+  .mc-pct.md { color:var(--gold); }
+  .mc-pct.lo { color:var(--muted2); }
+
+  .mc-serie {
+    font-family:var(--f-mono);font-size:12px;
+    color:var(--muted);text-align:right;white-space:nowrap;
+  }
+  .mc-check { font-size:18px;width:26px;text-align:center; }
+
+  /* ── CALIBRATION SECTION ── */
+  .calib-intro {
+    font-size:15px;font-weight:300;color:var(--muted2);
+    line-height:1.75;max-width:680px;margin-bottom:48px;
+  }
+
+  .chart-wrap {
+    background:var(--dark2);
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:16px;padding:40px 40px 32px;
+    margin-bottom:32px;
+  }
+
+  .chart-title {
+    font-family:var(--f-mono);font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:32px;
+    display:flex;align-items:center;gap:16px;
+  }
+  .chart-title span { display:flex;align-items:center;gap:6px; }
+  .dot { width:9px;height:9px;border-radius:50%;display:inline-block; }
+  .dot-gold { background:var(--gold); }
+  .dot-dim  { background:#2A3245; }
+  .dot-green{ background:var(--green); }
+
+  /* SVG Chart */
+  #calibChart { width:100%;height:auto;display:block; }
+
+  /* Brier row */
+  .brier-row {
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:16px;margin-top:24px;
+  }
+  .brier-card {
+    background:var(--dark3);border:1px solid rgba(0,0,0,.08);
+    border-radius:10px;padding:20px 24px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brier-card.winner { border-color:rgba(253,185,39,.25); }
+  .brier-label { font-family:var(--f-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted); }
+  .brier-val   { font-family:var(--f-disp);font-size:40px; }
+  .brier-val.gold { color:var(--gold); }
+  .brier-val.dim  { color:#2A3245; }
+  .brier-note  { font-size:11px;color:var(--muted);margin-top:4px; }
+
+  /* divergence */
+  .div-block {
+    background:linear-gradient(135deg,rgba(253,185,39,.07),rgba(253,185,39,.02));
+    border:1px solid rgba(253,185,39,.2);
+    border-radius:14px;padding:32px 36px;margin-top:40px;
+  }
+  .div-head {
+    font-family:var(--f-disp);font-size:24px;
+    color:var(--gold);margin-bottom:24px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .div-row {
+    display:grid;grid-template-columns:1fr 1fr 1fr;
+    gap:20px;padding:20px 0;
+    border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .div-row:last-child { border-bottom:none; }
+  .div-lbl { font-family:var(--f-mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:5px; }
+  .div-val { font-size:14px;font-weight:500; }
+  .ok  { color:var(--green); }
+  .err { color:#EF4444; }
+
+  /* highlight box */
+  .hl {
+    background:linear-gradient(135deg,rgba(201,8,42,.08),rgba(23,64,139,.08));
+    border:1px solid rgba(201,8,42,.18);
+    border-radius:12px;padding:24px 28px;
+    margin:32px 0;font-size:14px;
+    color:var(--muted2);line-height:1.75;
+  }
+  .hl strong { color:var(--white); }
+  .hl .num   { color:var(--gold);font-family:var(--f-mono); }
+
+  /* ── METHODOLOGY ── */
+  .meth-grid {
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:10px;margin-bottom:28px;
+  }
+  .meth-card {
+    background:var(--dark3);border:1px solid #E0DDD6;
+    border-radius:10px;padding:18px 16px;text-align:center;
+  }
+  .meth-w   { font-family:var(--f-disp);font-size:38px;color:var(--red);line-height:1; }
+  .meth-n   { font-family:var(--f-mono);font-size:9px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin:6px 0 4px; }
+  .meth-d   { font-size:11px;color:var(--muted);line-height:1.4; }
+  .pipeline {
+    background:#EEEAE0;
+    border:1px solid rgba(0,0,0,.08);
+    border-radius:10px;padding:22px 28px;
+    font-family:var(--f-mono);font-size:12px;
+    line-height:2.1;color:#6B7A94;
+  }
+  .pipeline .kw  { color:#F97316; }
+  .pipeline .v   { color:var(--gold); }
+  .pipeline .cm  { color:#2A3245; }
+  .pipeline .fn  { color:var(--teal); }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top:1px solid rgba(0,0,0,.1);
+    padding:40px 0;
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:16px;
+  }
+  .footer-l { font-size:12px;color:var(--muted); }
+  .footer-l strong { color:var(--white); }
+  .footer-r { font-family:var(--f-mono);font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase; }
+
+  /* anims */
+  @keyframes fu {
+    from { opacity:0;transform:translateY(18px); }
+    to   { opacity:1;transform:translateY(0); }
+  }
+
+  @media(max-width:680px){
+    .mc { grid-template-columns:3px 1fr auto auto; }
+    .pill,.mc-serie { display:none; }
+    .brier-row,.div-row,.meth-grid { grid-template-columns:1fr 1fr; }
+    .kpis { gap:28px; }
+    .sb-col { padding:0 20px; }
+    .chart-wrap { padding:24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ HERO ════════ -->
+<div class="hero">
+<div class="wrap">
+  <p class="eyebrow">Análise de Dados Esportiva · NBA Playoffs 2024–25 · 1ª Rodada</p>
+  <h1>MODELO<br><em>MD7</em><br>NBA<sup>®</sup></h1>
+  <p class="hero-lead">
+    Sistema de previsibilidade de confrontos construído com estatísticas avançadas da
+    temporada regular, simulação Monte Carlo (1.000 séries best-of-7) e modelo
+    probabilístico Bradley-Terry calibrado para a variância real do basquete profissional.
+  </p>
+  <div class="kpis">
+    <div><div class="kpi-n">8/8</div><div class="kpi-l">Acertos — 1ª Rodada</div></div>
+    <div><div class="kpi-n">100%</div><div class="kpi-l">Precisão MD7</div></div>
+    <div><div class="kpi-n">1.000</div><div class="kpi-l">Séries Simuladas</div></div>
+    <div><div class="kpi-n">2×</div><div class="kpi-l">Upsets antecipados</div></div>
+  </div>
+  <div class="scoreboard">
+    <div class="sb-col">
+      <div class="sb-tag">Modelo MD7</div>
+      <div class="sb-score gold">8/8</div>
+      <div class="sb-note">100% · Brier Score 0.1140</div>
+    </div>
+    <div class="sb-vs">VS</div>
+    <div class="sb-col">
+      <div class="sb-tag">Odds do mercado</div>
+      <div class="sb-score dim">6/8</div>
+      <div class="sb-note">75% · Brier Score 0.1622</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="div">
+
+<!-- ════════ RESULTADOS ════════ -->
+<section>
+<div class="wrap">
+  <p class="sec-eye">Resultados · 1ª Rodada</p>
+  <h2 class="sec-title">PREVISÕES<br>VS REALIDADE</h2>
+
+  <!-- LESTE -->
+  <div class="matchup-group">
+    <div class="conf-badge east">⬡ Conferência Leste</div>
+
+    <div class="mc">
+      <div class="mc-bar ok"></div>
+      <div class="mc-teams"><div class="mc-winner">Cleveland Cavaliers</div><div class="mc-loser">vs Miami Heat</div></div>
+      <span class="pill p-exp">EXPRESSIVO</span>
+      <div class="mc-pct hi">85.7%</div>
+      <div class="mc-serie">4-0 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-bar ok"></div>
+      <div class="mc-teams"><div class="mc-winner">Boston Celtics</div><div class="mc-loser">vs Orlando Magic</div></div>
+      <span class="pill p-exp">EXPRESSIVO</span>
+      <div class="mc-pct hi">81.9%</div>
+      <div class="mc-serie">4-1 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-bar ok"></div>
+      <div class="mc-teams"><div class="mc-winner">New York Knicks</div><div class="mc-loser">vs Detroit Pistons</div></div>
+      <span class="pill p-toss">TOSS-UP</span>
+      <div class="mc-pct lo">52.2%</div>
+      <div class="mc-serie">4-2 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-bar ok"></div>
+      <div class="mc-teams"><div class="mc-winner">Indiana Pacers</div><div class="mc-loser">vs Milwaukee Bucks</div></div>
+      <span class="pill p-toss">TOSS-UP</span>
+      <div class="mc-pct lo">50.4%</div>
+      <div class="mc-serie">4-1 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+  </div>
+
+  <!-- OESTE -->
+  <div class="matchup-group">
+    <div class="conf-badge west">⬡ Conferência Oeste</div>
+
+    <div class="mc">
+      <div class="mc-bar ok"></div>
+      <div class="mc-teams"><div class="mc-winner">Oklahoma City Thunder</div><div class="mc-loser">vs Memphis Grizzlies</div></div>
+      <span class="pill p-exp">EXPRESSIVO</span>
+      <div class="mc-pct hi">81.5%</div>
+      <div class="mc-serie">4-0 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-bar ok"></div>
+      <div class="mc-teams"><div class="mc-winner">Golden State Warriors</div><div class="mc-loser">vs Houston Rockets</div></div>
+      <span class="pill p-leve">LEVE</span>
+      <div class="mc-pct md">56.6%</div>
+      <div class="mc-serie">4-3 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-bar upset"></div>
+      <div class="upset-label">⚡ MD7 antecipou upset</div>
+      <div class="mc-teams"><div class="mc-winner">Minnesota Timberwolves</div><div class="mc-loser">vs Los Angeles Lakers</div></div>
+      <span class="pill p-mod">MODERADO</span>
+      <div class="mc-pct md">67.8%</div>
+      <div class="mc-serie">4-1 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+
+    <div class="mc">
+      <div class="mc-bar upset"></div>
+      <div class="upset-label">⚡ MD7 antecipou upset</div>
+      <div class="mc-teams"><div class="mc-winner">Denver Nuggets</div><div class="mc-loser">vs LA Clippers</div></div>
+      <span class="pill p-exp">EXPRESSIVO</span>
+      <div class="mc-pct hi">75.9%</div>
+      <div class="mc-serie">4-3 real</div>
+      <div class="mc-check">✅</div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<hr class="div">
+
+<!-- ════════ CALIBRAÇÃO ════════ -->
+<section>
+<div class="wrap">
+  <p class="sec-eye">Análise de Calibração · MD7 vs Mercado</p>
+  <h2 class="sec-title">QUANTO CADA<br>MODELO CONFIOU<br>NO VENCEDOR</h2>
+
+  <p class="calib-intro">
+    Calibração mede a qualidade probabilística de um modelo: não só se ele acertou <em>quem</em> vai vencer,
+    mas se as probabilidades atribuídas refletem o risco real de cada confronto.
+    O gráfico abaixo mostra, para cada um dos 8 jogos, a probabilidade que o MD7 e as odds de mercado
+    deram ao time que <em>efetivamente venceu</em> a série.
+  </p>
+
+  <div class="chart-wrap">
+
+    <!-- ── LEGENDA ── -->
+    <div style="display:flex;align-items:center;gap:32px;margin-bottom:28px;flex-wrap:wrap;">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8A8A9A;margin-right:8px;">Legenda:</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="22" height="22"><circle cx="11" cy="11" r="8" fill="#C9082A"/></svg>
+        <span style="font-size:13px;font-weight:600;color:#1A1A2A;">Modelo MD7</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="22" height="22"><circle cx="11" cy="11" r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/></svg>
+        <span style="font-size:13px;color:#4A4A5A;">Odds — previsão correta</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="22" height="22"><circle cx="11" cy="11" r="8" fill="none" stroke="#C9082A" stroke-width="2" stroke-dasharray="4 2"/></svg>
+        <span style="font-size:13px;color:#4A4A5A;">Odds — previsão errada (upset)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <svg width="36" height="14"><line x1="0" y1="7" x2="36" y2="7" stroke="#AAAABC" stroke-width="1.5" stroke-dasharray="4 3"/></svg>
+        <span style="font-size:13px;color:#8A8A9A;">Linha 50% (aleatório)</span>
+      </div>
+    </div>
+
+    <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;overflow:visible;">
+
+      <!-- ── FUNDO ── -->
+      <rect x="100" y="50" width="780" height="320" fill="#F9F7F3" rx="4"/>
+
+      <!-- ── FAIXAS DE FUNDO alternadas ── -->
+      <rect x="100" y="50"  width="97" height="320" fill="rgba(0,0,0,.015)" rx="0"/>
+      <rect x="294" y="50"  width="97" height="320" fill="rgba(0,0,0,.015)" rx="0"/>
+      <rect x="488" y="50"  width="97" height="320" fill="rgba(0,0,0,.015)" rx="0"/>
+      <rect x="682" y="50"  width="97" height="320" fill="rgba(0,0,0,.015)" rx="0"/>
+
+      <!-- ── LINHA 50% ── -->
+      <line x1="100" y1="210" x2="880" y2="210" stroke="#AAAABC" stroke-width="1" stroke-dasharray="5 4"/>
+      <text x="886" y="214" fill="#AAAABC" font-family="'DM Mono',monospace" font-size="10" text-anchor="start">50%</text>
+
+      <!-- ── LINHAS HORIZONTAIS ── -->
+      <line x1="100" y1="50"  x2="880" y2="50"  stroke="#E0DDD6" stroke-width="1"/>
+      <line x1="100" y1="114" x2="880" y2="114" stroke="#E8E4DC" stroke-width="1"/>
+      <line x1="100" y1="178" x2="880" y2="178" stroke="#E8E4DC" stroke-width="1"/>
+      <!-- 50% já traçada -->
+      <line x1="100" y1="242" x2="880" y2="242" stroke="#E8E4DC" stroke-width="1"/>
+      <line x1="100" y1="306" x2="880" y2="306" stroke="#E8E4DC" stroke-width="1"/>
+      <line x1="100" y1="370" x2="880" y2="370" stroke="#E0DDD6" stroke-width="1"/>
+
+      <!-- ── EIXO Y ── -->
+      <text x="90" y="54"  fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="11" text-anchor="end">100%</text>
+      <text x="90" y="118" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="11" text-anchor="end">80%</text>
+      <text x="90" y="182" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="11" text-anchor="end">60%</text>
+      <text x="90" y="246" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="11" text-anchor="end">40%</text>
+      <text x="90" y="310" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="11" text-anchor="end">20%</text>
+      <text x="90" y="374" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="11" text-anchor="end">0%</text>
+
+      <!-- título eixo Y -->
+      <text transform="rotate(-90,28,210)" x="28" y="210" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" letter-spacing=".1em">P(VENCEDOR REAL)</text>
+
+      <!-- ════════════════════════════════════
+           PONTOS — y = 370 - (p/100)*320
+           cols: CLE=145 BOS=242 NYK=339 IND=436
+                 OKC=533 GSW=630 MIN=727 DEN=824
+      ═══════════════════════════════════════ -->
+
+      <!-- ── CLE: MD7=85.7→97, Odds=80→114 ── -->
+      <line x1="145" y1="97"  x2="145" y2="114" stroke="#AAAABC" stroke-width="1.5"/>
+      <circle cx="145" cy="114" r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/>
+      <circle cx="145" cy="97"  r="8" fill="#C9082A"/>
+      <text x="145" y="86"  fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" font-weight="500">85.7%</text>
+
+      <!-- ── BOS: MD7=81.9→107, Odds=81→110 ── -->
+      <line x1="242" y1="107" x2="242" y2="110" stroke="#AAAABC" stroke-width="1.5"/>
+      <circle cx="242" cy="110" r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/>
+      <circle cx="242" cy="107" r="8" fill="#C9082A"/>
+      <text x="242" y="95"  fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" font-weight="500">81.9%</text>
+
+      <!-- ── NYK: MD7=52.2→203, Odds=61→175 ── -->
+      <line x1="339" y1="203" x2="339" y2="175" stroke="#AAAABC" stroke-width="1.5"/>
+      <circle cx="339" cy="175" r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/>
+      <circle cx="339" cy="203" r="8" fill="#C9082A"/>
+      <text x="339" y="219" fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" font-weight="500">52.2%</text>
+
+      <!-- ── IND: MD7=50.4→209, Odds=57→188 ── -->
+      <line x1="436" y1="209" x2="436" y2="188" stroke="#AAAABC" stroke-width="1.5"/>
+      <circle cx="436" cy="188" r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/>
+      <circle cx="436" cy="209" r="8" fill="#C9082A"/>
+      <text x="436" y="225" fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" font-weight="500">50.4%</text>
+
+      <!-- ── OKC: MD7=81.5→109, Odds=88→89 ── -->
+      <line x1="533" y1="109" x2="533" y2="89"  stroke="#AAAABC" stroke-width="1.5"/>
+      <circle cx="533" cy="89"  r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/>
+      <circle cx="533" cy="109" r="8" fill="#C9082A"/>
+      <text x="533" y="98"  fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" font-weight="500">81.5%</text>
+
+      <!-- ── GSW: MD7=56.6→189, Odds=52→204 ── -->
+      <line x1="630" y1="189" x2="630" y2="204" stroke="#AAAABC" stroke-width="1.5"/>
+      <circle cx="630" cy="204" r="7" fill="#9CA8BC" stroke="#6B7A96" stroke-width="1.5"/>
+      <circle cx="630" cy="189" r="8" fill="#C9082A"/>
+      <text x="630" y="177" fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle" font-weight="500">56.6%</text>
+
+      <!-- ══ MIN: MD7=67.8→153, Odds=41%(erro)→239 ══ UPSET -->
+      <!-- fundo destacado -->
+      <rect x="682" y="50" width="90" height="320" fill="rgba(201,8,42,.04)" rx="0"/>
+      <line x1="727" y1="153" x2="727" y2="239" stroke="#C9082A" stroke-width="1.5" stroke-dasharray="5 3" opacity=".5"/>
+      <!-- odds errada: círculo vazio tracejado vermelho -->
+      <circle cx="727" cy="239" r="9" fill="white" stroke="#C9082A" stroke-width="2" stroke-dasharray="4 2"/>
+      <text x="727" y="256" fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle">41%</text>
+      <!-- md7 acertou -->
+      <circle cx="727" cy="153" r="10" fill="#C9082A"/>
+      <text x="727" y="140" fill="#C9082A" font-family="'DM Mono',monospace" font-size="11" text-anchor="middle" font-weight="700">67.8%</text>
+      <!-- badge upset -->
+      <rect x="682" y="382" width="90" height="18" rx="3" fill="rgba(201,8,42,.1)" stroke="rgba(201,8,42,.3)" stroke-width="1"/>
+      <text x="727" y="395" fill="#C9082A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle" letter-spacing=".08em">⚡ UPSET</text>
+
+      <!-- ══ DEN: MD7=75.9→127, Odds=46%(erro)→223 ══ UPSET -->
+      <rect x="779" y="50" width="90" height="320" fill="rgba(201,8,42,.04)" rx="0"/>
+      <line x1="824" y1="127" x2="824" y2="223" stroke="#C9082A" stroke-width="1.5" stroke-dasharray="5 3" opacity=".5"/>
+      <!-- odds errada -->
+      <circle cx="824" cy="223" r="9" fill="white" stroke="#C9082A" stroke-width="2" stroke-dasharray="4 2"/>
+      <text x="824" y="240" fill="#C9082A" font-family="'DM Mono',monospace" font-size="10" text-anchor="middle">46%</text>
+      <!-- md7 acertou -->
+      <circle cx="824" cy="127" r="10" fill="#C9082A"/>
+      <text x="824" y="114" fill="#C9082A" font-family="'DM Mono',monospace" font-size="11" text-anchor="middle" font-weight="700">75.9%</text>
+      <!-- badge upset -->
+      <rect x="779" y="382" width="90" height="18" rx="3" fill="rgba(201,8,42,.1)" stroke="rgba(201,8,42,.3)" stroke-width="1"/>
+      <text x="824" y="395" fill="#C9082A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle" letter-spacing=".08em">⚡ UPSET</text>
+
+      <!-- ── EIXO X — rótulos ── -->
+      <text x="145" y="415" fill="#6A6A7A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="500">CLE–MIA</text>
+      <text x="242" y="415" fill="#6A6A7A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="500">BOS–ORL</text>
+      <text x="339" y="415" fill="#6A6A7A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="500">NYK–DET</text>
+      <text x="436" y="415" fill="#6A6A7A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="500">IND–MIL</text>
+      <text x="533" y="415" fill="#6A6A7A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="500">OKC–MEM</text>
+      <text x="630" y="415" fill="#6A6A7A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="500">GSW–HOU</text>
+      <text x="727" y="415" fill="#C9082A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="700">MIN–LAL</text>
+      <text x="824" y="415" fill="#C9082A" font-family="'DM Sans',sans-serif" font-size="12" text-anchor="middle" font-weight="700">DEN–LAC</text>
+
+      <!-- conferências -->
+      <text x="145" y="435" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle">LESTE</text>
+      <text x="242" y="435" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle">LESTE</text>
+      <text x="339" y="435" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle">LESTE</text>
+      <text x="436" y="435" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle">LESTE</text>
+      <text x="533" y="435" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle">OESTE</text>
+      <text x="630" y="435" fill="#8A8A9A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle">OESTE</text>
+      <text x="727" y="435" fill="#C9082A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle" font-weight="600">OESTE</text>
+      <text x="824" y="435" fill="#C9082A" font-family="'DM Mono',monospace" font-size="9" text-anchor="middle" font-weight="600">OESTE</text>
+
+      <!-- ── NOTA RODAPÉ ── -->
+      <text x="100" y="465" fill="#AAAABC" font-family="'DM Mono',monospace" font-size="9">
+        Odds (círculo tracejado) = probabilidade implícita no vencedor real. Nos upsets as odds favoreciam o adversário, resultando em P baixa para o time que venceu.
+      </text>
+
+    </svg>
+  </div>
+
+  <!-- BRIER SCORE -->
+  <div class="brier-row">
+    <div class="brier-card winner">
+      <div>
+        <div class="brier-label">Brier Score — MD7</div>
+        <div class="brier-val gold">0.1140</div>
+        <div class="brier-note">Menor = melhor calibração</div>
+      </div>
+      <div style="font-size:28px">🥇</div>
+    </div>
+    <div class="brier-card">
+      <div>
+        <div class="brier-label">Brier Score — Odds</div>
+        <div class="brier-val dim">0.1622</div>
+        <div class="brier-note">+29.7% pior que o MD7</div>
+      </div>
+      <div style="font-size:28px; opacity:.4">📉</div>
+    </div>
+  </div>
+
+  <!-- FONTE DAS ODDS -->
+  <div style="
+    margin-bottom:20px;
+    padding:14px 20px;
+    background:#F9F7F3;
+    border:1px solid #E0DDD6;
+    border-left:3px solid var(--muted);
+    border-radius:4px;
+    font-family:var(--f-mono);
+    font-size:11px;
+    letter-spacing:.04em;
+    color:var(--muted2);
+    line-height:1.7;
+  ">
+    <strong style="color:var(--white);letter-spacing:.1em;text-transform:uppercase;font-size:9px;">Metodologia das odds</strong><br>
+    As probabilidades do mercado utilizadas na comparação foram obtidas no site <strong style="color:var(--white)">OddsAgora</strong>,
+    a partir do histórico de odds pré-game de cada jogo da série.
+    O valor final por confronto é a média aritmética das odds pré-game dos jogos totais daquela série,
+    convertida em probabilidade implícita. Essa abordagem reflete o consenso do mercado ao longo da série
+    e não depende de um único jogo ou momento de abertura das apostas.
+  </div>
+
+  <!-- DIVERGÊNCIAS -->
+  <div class="div-block">
+    <div class="div-head"><span>⚡</span> Os 2 upsets que o MD7 antecipou — e o mercado errou</div>
+
+    <div class="div-row">
+      <div>
+        <div class="div-lbl">Confronto</div>
+        <div class="div-val">Timberwolves vs Lakers</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">WEST · 6ª vs 3ª semente</div>
+      </div>
+      <div>
+        <div class="div-lbl">MD7 → Timberwolves</div>
+        <div class="div-val ok">67.8% · +17.8pp MODERADO</div>
+        <div style="font-size:12px;color:var(--green);margin-top:4px">✅ MIN vence 4-1</div>
+      </div>
+      <div>
+        <div class="div-lbl">Odds → Lakers (59%)</div>
+        <div class="div-val err">P(MIN) implícita: apenas 41%</div>
+        <div style="font-size:12px;color:#EF4444;margin-top:4px">❌ Viés narrativo: LeBron James + Luka Dončić</div>
+      </div>
+    </div>
+
+    <div class="div-row">
+      <div>
+        <div class="div-lbl">Confronto</div>
+        <div class="div-val">Nuggets vs Clippers</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">WEST · 4ª vs 5ª semente</div>
+      </div>
+      <div>
+        <div class="div-lbl">MD7 → Nuggets</div>
+        <div class="div-val ok">75.9% · +25.9pp EXPRESSIVO</div>
+        <div style="font-size:12px;color:var(--green);margin-top:4px">✅ DEN vence 4-3</div>
+      </div>
+      <div>
+        <div class="div-lbl">Odds → Clippers (54%)</div>
+        <div class="div-val err">P(DEN) implícita: apenas 46%</div>
+        <div style="font-size:12px;color:#EF4444;margin-top:4px">❌ Viés narrativo: Kawhi retorno</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hl">
+    O Brier Score mede o erro quadrático médio das probabilidades — quanto mais próximo de 0, melhor.
+    O MD7 obteve <span class="num">0.1140</span> contra <span class="num">0.1622</span> das odds,
+    uma diferença de <strong>+29.7% de melhora em calibração</strong>.
+    Nos dois confrontos divergentes, a diferença foi ainda mais expressiva:
+    o modelo deu <span class="num">67.8%</span> e <span class="num">75.9%</span> ao vencedor real,
+    enquanto o mercado atribuiu apenas <span class="num">41%</span> e <span class="num">46%</span>,
+    influenciado pelo apelo comercial dos <strong>LeBron James + Luka Dončić</strong> e pelo retorno de <strong>Kawhi Leonard</strong> nos Clippers.
+    As probabilidades do mercado foram calculadas como média das odds pré-game de cada jogo da série, coletadas no <strong>OddsAgora</strong>.
+  </div>
+
+</div>
+</section>
+
+<hr class="div">
+
+<!-- ════════ METODOLOGIA ════════ -->
+<section>
+<div class="wrap">
+  <p class="sec-eye">Metodologia · CMS</p>
+  <h2 class="sec-title">COMO O<br>MODELO FUNCIONA</h2>
+
+  <div class="meth-grid">
+    <div class="meth-card"><div class="meth-w">20%</div><div class="meth-n">OFF Rating</div><div class="meth-d">Pontos por 100 posses — eficiência ofensiva real</div></div>
+    <div class="meth-card"><div class="meth-w">20%</div><div class="meth-n">DEF Rating</div><div class="meth-d">Pontos cedidos por 100 posses (invertido)</div></div>
+    <div class="meth-card"><div class="meth-w">15%</div><div class="meth-n">NET Rating</div><div class="meth-d">Diferencial OFF–DEF. Indicador-síntese de dominância</div></div>
+    <div class="meth-card"><div class="meth-w">10%</div><div class="meth-n">TS%</div><div class="meth-d">True Shooting % — eficiência real com 3pts e lances</div></div>
+    <div class="meth-card"><div class="meth-w">10%</div><div class="meth-n">REB Diff</div><div class="meth-d">Diferencial de rebotes vs média da liga</div></div>
+    <div class="meth-card"><div class="meth-w">10%</div><div class="meth-n">AST/TO</div><div class="meth-d">Razão assistências/turnovers — qualidade da posse</div></div>
+    <div class="meth-card"><div class="meth-w">5%</div><div class="meth-n">PACE</div><div class="meth-d">Ritmo em posses por 48 min</div></div>
+    <div class="meth-card"><div class="meth-w">10%</div><div class="meth-n">H2H Win%</div><div class="meth-d">Confrontos diretos na temporada regular</div></div>
+  </div>
+
+  <div class="pipeline">
+    <span class="cm"># Pipeline completo — Google Colab + nba_api</span><br>
+    <span class="kw">1.</span> Coleta via <span class="fn">nba_api</span> → Advanced + Base + Clutch Stats <span class="cm">(temporada 2024-25)</span><br>
+    <span class="kw">2.</span> Normalização Min-Max <span class="cm">→ CMS ∈ [0,1] por time</span><br>
+    <span class="kw">3.</span> P(vitória/jogo) via <span class="fn">Bradley-Terry</span>  k=<span class="v">3.5</span>  clamp <span class="v">[0.32, 0.68]</span><br>
+    <span class="kw">4.</span> Ruído gaussiano σ=<span class="v">0.04</span> por jogo <span class="cm">(variância esportiva real)</span><br>
+    <span class="kw">5.</span> <span class="v">1.000</span> séries best-of-7 simuladas por confronto<br>
+    <span class="kw">6.</span> Win% de série <span class="cm">→</span> Margem de Favorecimento (MF) + grau de certeza
+  </div>
+
+  <!-- MF EXPLANATION -->
+  <div style="margin-top:32px;">
+    <p style="font-family:var(--f-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">Interpretação dos resultados · Margem de Favorecimento (MF)</p>
+
+    <div style="background:#FFFFFF;border:1px solid #E0DDD6;border-radius:6px;padding:24px 28px;">
+      <div style="font-size:13px;color:var(--muted2);margin-bottom:20px;line-height:1.65;">
+        MF = Win% do favorito − 50%. Mede o quanto o modelo está acima do ponto de equilíbrio e classifica o grau de certeza da previsão.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:4px;background:#F9F7F3;border-left:4px solid #AAAABC;">
+          <span style="font-family:var(--f-mono);font-size:12px;background:#F0EDE4;border:1px solid #D8D4CC;border-radius:3px;padding:4px 12px;color:#6A6A7A;white-space:nowrap;min-width:120px;text-align:center;">⚪ TOSS-UP</span>
+          <span style="font-family:var(--f-mono);font-size:13px;color:var(--red);font-weight:700;min-width:64px;">&lt; 5pp</span>
+          <span style="font-size:14px;color:var(--muted2);">praticamente cara ou coroa — série completamente em aberto</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:4px;background:#F9F7F3;border-left:4px solid #0676A0;">
+          <span style="font-family:var(--f-mono);font-size:12px;background:rgba(6,118,160,.08);border:1px solid rgba(6,118,160,.2);border-radius:3px;padding:4px 12px;color:#0676A0;white-space:nowrap;min-width:120px;text-align:center;">🔵 LEVE</span>
+          <span style="font-family:var(--f-mono);font-size:13px;color:var(--red);font-weight:700;min-width:64px;">5–14pp</span>
+          <span style="font-size:14px;color:var(--muted2);">vantagem existe, mas série muito aberta — qualquer resultado possível</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:4px;background:#F9F7F3;border-left:4px solid #A07208;">
+          <span style="font-family:var(--f-mono);font-size:12px;background:rgba(212,150,10,.1);border:1px solid rgba(212,150,10,.25);border-radius:3px;padding:4px 12px;color:#A07208;white-space:nowrap;min-width:120px;text-align:center;">🟡 MODERADO</span>
+          <span style="font-family:var(--f-mono);font-size:13px;color:var(--red);font-weight:700;min-width:64px;">15–24pp</span>
+          <span style="font-size:14px;color:var(--muted2);">favoritismo claro — upset possível mas improvável</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:4px;background:#F9F7F3;border-left:4px solid #C9082A;">
+          <span style="font-family:var(--f-mono);font-size:12px;background:rgba(201,8,42,.08);border:1px solid rgba(201,8,42,.2);border-radius:3px;padding:4px 12px;color:#C9082A;white-space:nowrap;min-width:120px;text-align:center;">🟠 EXPRESSIVO</span>
+          <span style="font-family:var(--f-mono);font-size:13px;color:var(--red);font-weight:700;min-width:64px;">≥ 25pp</span>
+          <span style="font-size:14px;color:var(--muted2);">forte favorito — upset seria grande surpresa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<hr class="div">
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+<div class="wrap">
+  <div class="footer">
+    <div class="footer-l">
+      Projeto <strong>NBA MD7</strong> · Análise de Dados Esportiva<br>
+      Dados: nba_api · Temporada Regular 2024–25 · Google Colab · Python
+    </div>
+    <div class="footer-r">#DataScience · #NBA · #SportAnalytics · #Python · #MonteCarlo</div>
+  </div>
+</div>
+</footer>
+
+</body>
+</html>
